@@ -69,7 +69,7 @@ def download_file(url, save_path, save_name=None):
 
 
 def get_product_save_path(product_id, collection):
-	return save_path = os.path.join(os.environ['L0data'], sensor_id, product_id)
+	return os.path.join(os.environ['L0data'], sensor_id, product_id)
 
 
 

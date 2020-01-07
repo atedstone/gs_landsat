@@ -6,13 +6,17 @@ derived from the Google:
 https://cloud.google.com/storage/docs/public-datasets/landsat
 https://storage.googleapis.com/gcp-public-data-landsat/index.csv.gz
 
-Assumes that Landsat imagery are stored within a folder specified by the 
-environment variable $L0data.
+Pre-requisites:
+	Assumes that Landsat imagery are stored within a folder specified by the 
+	environment variable $L0data.
+
+
 
 Note: an alternative approach might be to run an SQL BigQuery on the Google
 Cloud Platform, but at time of writing (Jan 2020) I haven't bothered to get
 the relevant permissions with Google for this to work. (AJT) 
 
+Andrew Tedstone, Nov 2019 - Jan 2020
 
 """
 
@@ -22,13 +26,9 @@ import geopandas as gpd
 import os
 import requests
 
-import configparser
-
-download = True
-download_bands = ('B1','B2','B3','B4','B5')
 
 """
-# This query does not use the spatial index, making it very slow:
+# This example query does not use the spatial index, making it very slow:
 sql = 'select SCENE_ID, SPACECRAFT_ID, DATE_ACQUIRED, WRS_PATH, WRS_ROW, CLOUD_COVER, DATA_TYPE, BASE_URL, Hex(ST_AsBinary(geom)) as geom from SpatialIndex where  ST_Intersects(BuildMBR(-47.1,67.0,-46.98,66.96), geom) and spacecraft_id=="LANDSAT_1" and EAST_LON > WEST_LON'
 
 # Method of reading into a Pandas (not GeoPandas) dataframe:
@@ -181,6 +181,10 @@ def download_products(df_down, show_progress=True):
 	print('Downloading finished.')
 
 
+def open_database(db_path):
+	return spatialite.connect(db_path)
+
+
 
 def execute_query(db, sql):
 	""" Execute an SQL query on the landsat database.
@@ -193,6 +197,31 @@ def execute_query(db, sql):
 	df_full = gpd.GeoDataFrame.from_postgis(sql, db, geom_col='geom', parse_dates=['DATE_ACQUIRED'])
 	df_full[df_full.PRODUCT_ID == ''] = df_full.SCENE_ID
 	return df_full
+
+
+
+def filter_collection_1(df):
+	return df[(df.COLLECTION_NUMBER == 1)]
+
+
+
+def filter_collection_pre(df):
+	"""Find data only available as PRE. 
+
+	Only works if both Collection 1 and PRE data have been requested in initial
+	SQL query!
+
+	Inputs:
+		df : pd.DataFrame of contents of query to Landsat database.
+	"""
+	
+	# First do counts to see if duplicated
+	counts = df.SCENE_ID.groupby(df.SCENE_ID).count()
+	# Apply counts back to main dataframe
+	df = df.join(counts, rsuffix='_COUNT')
+	prepro_only = df[(df.SCENE_ID_COUNT == 1) & (df.COLLECTION_NUMBER == 'PRE')]
+
+	return prepro_only	
 
 
 

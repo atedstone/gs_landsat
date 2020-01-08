@@ -168,17 +168,34 @@ def download_product(product_id, sensor_id, collection, gs_path, bands,
 
 
 
-def download_products(df_down, show_progress=True):
+def download_products(df_down, bands, show_progress=True):
 	n = 1
 	for ix, row in df_down.iterrows():
 		print('%s/%s %s' %(n, ntot, row.SCENE_ID))
 
-		product_status, bands_status = check_product_available(pid, row.COLLECTION_NUMBER, download_bands)
+		product_status, bands_status = check_product_available(row.PRODUCT_ID, row.COLLECTION_NUMBER, bands)
 		if not product_status:
 			download_product(pid, row.SENSOR_ID, row.COLLECTION_NUMBER, row.BASE_URL, bands_status, verbose=True)
 		n += 1
 
 	print('Downloading finished.')
+
+
+
+def check_products_available(df_check, bands):
+	""" Check entire dataframe of products - wrapper function.
+
+	"""
+
+	store = {}
+	for ix, row in df_check.iterrows():
+		print('%s/%s %s' %(n, ntot, row.SCENE_ID))
+
+		product_status, bands_status = check_product_available(row.PRODUCT_ID, row.COLLECTION_NUMBER, bands)
+		store[ix] = bands_status
+
+	return pd.DataFrame.from_dict(store, orient='index')
+
 
 
 def open_database(db_path):

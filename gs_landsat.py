@@ -212,7 +212,7 @@ def execute_query(db, sql):
 	"""
 
 	df_full = gpd.GeoDataFrame.from_postgis(sql, db, geom_col='geom', parse_dates=['DATE_ACQUIRED'])
-	df_full[df_full.PRODUCT_ID == ''] = df_full.SCENE_ID
+	df_full[df_full.PRODUCT_ID == ''] = df_full.SCENE_ID[df_full.PRODUCT_ID == '']
 	return df_full
 
 

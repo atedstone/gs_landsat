@@ -68,18 +68,19 @@ def download_file(url, save_path, save_name=None):
 
 
 
-def get_product_save_path(product_id, collection):
+def get_product_save_path(product_id, sensor_id, product_id):
 	return os.path.join(os.environ['L0data'], sensor_id, product_id)
 
 
 
-def check_product_available(product_id, collection, bands):
+def check_product_available(product_id, collection, sensor, bands):
 	"""
 	Check whether complete landsat product is available locally.
 
 	product_id : Landsat Product ID, or Scene ID if collection == 'PRE'
 	collection : collection number - PRE, 1, 2
 	bands : tuple of bands to check
+	sensor : TM, MSS, etc
 
 	The MTL.txt file is always checked for.
 	If collecion type is 1 then the BQA band will also be checked for.
@@ -92,7 +93,7 @@ def check_product_available(product_id, collection, bands):
 	"""
 
 	# Path to save file to
-	save_path = get_product_save_path(product_id, collection)
+	save_path = get_product_save_path(product_id, sensor, product_id)
 
 	# Only attempt to check BQA product for collections in which it is available.
 	if collection == 1:
@@ -176,7 +177,7 @@ def download_products(df_down, bands, show_progress=True):
 	for ix, row in df_down.iterrows():
 		print('%s/%s %s' %(n, ntot, row.SCENE_ID))
 
-		product_status, bands_status = check_product_available(row.PRODUCT_ID, row.COLLECTION_NUMBER, bands)
+		product_status, bands_status = check_product_available(row.PRODUCT_ID, row.COLLECTION_NUMBER, row.SENSOR_ID, bands)
 		if not product_status:
 			download_product(pid, row.SENSOR_ID, row.COLLECTION_NUMBER, row.BASE_URL, bands_status, verbose=True)
 		n += 1
@@ -192,7 +193,7 @@ def check_products_available(df_check, bands):
 
 	store = {}
 	for ix, row in df_check.iterrows():
-		product_status, bands_status = check_product_available(row.PRODUCT_ID, row.COLLECTION_NUMBER, bands)
+		product_status, bands_status = check_product_available(row.PRODUCT_ID, row.COLLECTION_NUMBER, row.SENSOR_ID, bands)
 		store[ix] = bands_status
 
 	return pd.DataFrame.from_dict(store, orient='index')

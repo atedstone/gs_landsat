@@ -102,10 +102,8 @@ def check_product_available(product_id, collection, bands):
 	complete = True
 	for b in bands:
 		if b == 'MTL':
-			url = http_path + '_MTL.txt'
 			band_save_path = os.path.join(save_path, (product_id + '_MTL.txt'))
 		else:
-			url = http_path + '_%s.TIF' %(b)
 			band_save_path = os.path.join(save_path, (product_id + '_%s.TIF' %(b)))
 
 		if os.path.exists(band_save_path):
@@ -125,6 +123,8 @@ def download_product(product_id, sensor_id, collection, gs_path, bands,
 	""" Handle the downloading of the requested bands of a Landsat product.
 
 	By default, download only occurs if file does not already exist locally.
+
+	bands must be the bands_status dictionary output by check_product_available
 
 	"""
 	

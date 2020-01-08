@@ -189,8 +189,6 @@ def check_products_available(df_check, bands):
 
 	store = {}
 	for ix, row in df_check.iterrows():
-		print('%s/%s %s' %(n, ntot, row.SCENE_ID))
-
 		product_status, bands_status = check_product_available(row.PRODUCT_ID, row.COLLECTION_NUMBER, bands)
 		store[ix] = bands_status
 
@@ -212,7 +210,8 @@ def execute_query(db, sql):
 	"""
 
 	df_full = gpd.GeoDataFrame.from_postgis(sql, db, geom_col='geom', parse_dates=['DATE_ACQUIRED'])
-	df_full[df_full.PRODUCT_ID == ''] = df_full.SCENE_ID[df_full.PRODUCT_ID == '']
+	df_full.PRODUCT_ID[df_full.PRODUCT_ID == ''] = df_full.SCENE_ID[df_full.PRODUCT_ID == '']
+	df_full.index = df_full.PRODUCT_ID
 	return df_full
 
 

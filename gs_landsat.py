@@ -91,6 +91,9 @@ def check_product_available(product_id, collection, bands):
 
 	"""
 
+	# Path to save file to
+	save_path = get_product_save_path(product_id, collection)
+
 	# Only attempt to check BQA product for collections in which it is available.
 	if collection == 1:
 		bands = list(bands)

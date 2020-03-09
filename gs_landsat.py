@@ -10,7 +10,7 @@ Pre-requisites:
 	Assumes that Landsat imagery are stored within a folder specified by the 
 	environment variable $L0data.
 
-
+	gunzip available on path.
 
 Note: an alternative approach might be to run an SQL BigQuery on the Google
 Cloud Platform, but at time of writing (Jan 2020) I haven't bothered to get

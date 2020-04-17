@@ -243,7 +243,8 @@ def download_product(product_id, sensor_id, collection, gs_path, bands,
 				print('Download of complete scene failed, deleting already-downloaded files.')
 				os.rmdir(save_path)
 			else:
-				print('Warning: %b does not exist.' %b)
+				print('Warning: %s does not exist.' %b)
+				continue
 
 		if gm:
 			# Gunzip the file
@@ -278,7 +279,7 @@ def open_database(db_path):
 
 
 
-def execute_query(db, sql):
+def execute_query(db, sql, geom_col=None):
 	""" Execute an SQL query on the landsat database.
 
 	Products with no product_id set are given scene_id as their product_id,
@@ -286,8 +287,12 @@ def execute_query(db, sql):
 
 	"""
 
-	df_full = gpd.GeoDataFrame.from_postgis(sql, db, geom_col='geom', 
-		parse_dates=['DATE_ACQUIRED'])
+	if geom_col is not None:
+		df_full = gpd.GeoDataFrame.from_postgis(sql, db, geom_col=geom_col, 
+			parse_dates=['DATE_ACQUIRED'])
+	else:
+		df_full = pd.read_sql(sql, db, parse_dates=['DATE_ACQUIRED'])
+	df_full.columns = [col.upper() for col in df_full.columns]
 	df_full.loc[df_full.PRODUCT_ID == '', 'PRODUCT_ID'] = df_full.SCENE_ID
 	df_full.index = df_full.PRODUCT_ID
 	return df_full

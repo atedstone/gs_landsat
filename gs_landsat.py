@@ -8,7 +8,7 @@ https://storage.googleapis.com/gcp-public-data-landsat/index.csv.gz
 
 Pre-requisites:
 	Assumes that Landsat imagery are stored within a folder specified by the 
-	environment variable $L0data.
+	environment variable $L0lib.
 
 	gunzip available on path.
 
@@ -47,8 +47,9 @@ ST_Transform(BuildMBR(-47.1,67.0,-46.98,66.96),4326) )
 
 
 
-def get_product_save_path(product_id, sensor_id):
-	return os.path.join(os.environ['L0data'], sensor_id, product_id)
+def get_product_save_path(product_id, sensor_id,
+	path=os.environ['L0lib']):
+	return os.path.join(path, sensor_id, product_id)
 
 
 
@@ -260,7 +261,7 @@ def download_products(df_down, bands, show_progress=True, verbose=False):
 	n = 1
 	ntot = len(df_down)
 	for ix, row in df_down.iterrows():
-		print('%s/%s %s' %(n, ntot, row.SCENE_ID))
+		print('%s/%s %s' %(n, ntot, row.PRODUCT_ID))
 
 		product_status, bands_status = check_product_available(row.PRODUCT_ID, 
 			row.COLLECTION_NUMBER, row.SENSOR_ID, bands)

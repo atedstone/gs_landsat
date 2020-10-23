@@ -300,6 +300,11 @@ def execute_query(db, sql, geom_col=None):
 
 
 
+def filter_collection_2020(df):
+	return df[(df.COLLECTION_NUMBER == 2020)]
+
+
+
 def filter_collection_1(df):
 	"""	Filter dataframe to return only Collection 1 data """
 	return df[(df.COLLECTION_NUMBER == 1)]
